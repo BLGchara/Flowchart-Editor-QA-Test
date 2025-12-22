@@ -2,9 +2,9 @@
 
 ## 📋 静态测试执行摘要
 
-**执行日期**: 2025-12-08  
-**执行方法**: 代码审查 + 文档分析  
-**覆盖范围**: 23 个源文件  
+**执行日期**: 2025-12-08
+**执行方法**: 代码审查 + 文档分析
+**覆盖范围**: 23 个源文件
 **发现问题**: 17 个（5 个高优先级）
 
 ---
@@ -43,12 +43,12 @@
 
 #### ⚠️ 问题项
 
-| 问题 | 位置 | 严重性 | 示例 |
-|------|------|--------|------|
-| **不一致的前缀** | DiagramItem | 🟡 中 | m_color vs myItemType |
-| **缺乏常量命名** | diagramscene.cpp | 🟡 中 | 硬编码的 5 (border) |
-| **成员变量暴露** | diagramitem.h | 🔴 高 | `bool showLink` (应为 private) |
-| **缺乏访问控制** | arrow.h | 🟡 中 | myStartItem/myEndItem 未 private |
+| 问题                   | 位置             | 严重性 | 示例                             |
+| ---------------------- | ---------------- | ------ | -------------------------------- |
+| **不一致的前缀** | DiagramItem      | 🟡 中  | m_color vs myItemType            |
+| **缺乏常量命名** | diagramscene.cpp | 🟡 中  | 硬编码的 5 (border)              |
+| **成员变量暴露** | diagramitem.h    | 🔴 高  | `bool showLink` (应为 private) |
+| **缺乏访问控制** | arrow.h          | 🟡 中  | myStartItem/myEndItem 未 private |
 
 #### 改进建议
 
@@ -68,10 +68,10 @@ class DiagramItem : public QGraphicsItem
 public:
     QColor color() const { return m_color; }
     void setColor(const QColor &color) { m_color = color; }
-    
+  
     bool isLinkVisible() const { return m_showLink; }
     void setLinkVisible(bool visible) { m_showLink = visible; }
-    
+  
 private:
     QColor m_color;
     QString m_textContent;
@@ -107,12 +107,12 @@ QMap<DiagramPath*, QString> marks;
 
 #### ⚠️ 需改进
 
-| 问题 | 位置 | 示例 | 改进 |
-|------|------|------|------|
-| 缺乏空格 | diagramscene.cpp | `if(isInsertPath)` | `if (isInsertPath)` |
-| 过长行 | mainwindow.cpp | 超过 100 字符 | 换行或提取变量 |
-| 缺乏空行 | diagramitem.cpp | 函数间无空行 | 添加空行分离 |
-| 魔术数字 | paint() | `myPolygon << QPointF(w/2, m_border)` | 提取为常量 |
+| 问题     | 位置             | 示例                                    | 改进                  |
+| -------- | ---------------- | --------------------------------------- | --------------------- |
+| 缺乏空格 | diagramscene.cpp | `if(isInsertPath)`                    | `if (isInsertPath)` |
+| 过长行   | mainwindow.cpp   | 超过 100 字符                           | 换行或提取变量        |
+| 缺乏空行 | diagramitem.cpp  | 函数间无空行                            | 添加空行分离          |
+| 魔术数字 | paint()          | `myPolygon << QPointF(w/2, m_border)` | 提取为常量            |
 
 ---
 
@@ -158,7 +158,7 @@ void DiagramScene::editorLostFocus(DiagramTextItem *item)
 void DiagramScene::editorLostFocus(DiagramTextItem *item)
 {
     if (!item) return;  // ✅ 添加防御检查
-    
+  
     if (item->toPlainText().isEmpty()) {
         removeItem(item);
         item->deleteLater();
@@ -182,7 +182,7 @@ void MainWindow::itemInserted(DiagramItem *item)
 class DiagramItem
 {
     QList<Arrow *> arrows;  // ⚠️ Arrow 由谁负责删除？
-    
+  
     void removeArrow(Arrow *arrow)
     {
         arrows.removeAll(arrow);
@@ -241,7 +241,7 @@ Arrow::Arrow(DiagramItem *startItem, DiagramItem *endItem,
 {
     myStartItem = startItem;
     myEndItem = endItem;
-    
+  
     if (scene) {
         scene->addItem(this);  // 由 scene 管理
     }
@@ -250,12 +250,12 @@ Arrow::Arrow(DiagramItem *startItem, DiagramItem *endItem,
 
 ### 2.3 内存泄漏风险总结
 
-| 位置 | 问题 | 严重性 | 影响 |
-|------|------|--------|------|
-| DiagramScene::editorLostFocus | 无 nullptr 检查 | 🔴 高 | 可能崩溃 |
-| Arrow 生命周期 | parent 关系不清 | 🟠 中 | 潜在泄漏 |
-| DeleteCommand | 悬垂指针 | 🟠 中 | 撤销时崩溃 |
-| DiagramPath | 所有权不明确 | 🟡 中 | 不确定 |
+| 位置                          | 问题            | 严重性 | 影响       |
+| ----------------------------- | --------------- | ------ | ---------- |
+| DiagramScene::editorLostFocus | 无 nullptr 检查 | 🔴 高  | 可能崩溃   |
+| Arrow 生命周期                | parent 关系不清 | 🟠 中  | 潜在泄漏   |
+| DeleteCommand                 | 悬垂指针        | 🟠 中  | 撤销时崩溃 |
+| DiagramPath                   | 所有权不明确    | 🟡 中  | 不确定     |
 
 **总体风险等级**: 🟠 **中等** (有改进空间)
 
@@ -361,13 +361,13 @@ path.moveTo(b + (w - 2*b) * ARC_START_RATIO, b);
 
 #### 建议提取的常量
 
-| 值 | 位置 | 用途 | 建议常量名 |
-|----|------|------|-----------|
-| 5 | DiagramItem | 边框宽度 | BORDER_WIDTH |
-| 150, 100 | DiagramItem | 默认大小 | DEFAULT_WIDTH, HEIGHT |
-| 40, 40 | DiagramItem | 最小尺寸 | MIN_WIDTH, HEIGHT |
-| 0.15, 0.3 | paint() | 弧形比例 | ARC_RATIO_* |
-| 90, 180 | paint() | 角度 | START_ANGLE, SPAN_ANGLE |
+| 值        | 位置        | 用途     | 建议常量名              |
+| --------- | ----------- | -------- | ----------------------- |
+| 5         | DiagramItem | 边框宽度 | BORDER_WIDTH            |
+| 150, 100  | DiagramItem | 默认大小 | DEFAULT_WIDTH, HEIGHT   |
+| 40, 40    | DiagramItem | 最小尺寸 | MIN_WIDTH, HEIGHT       |
+| 0.15, 0.3 | paint()     | 弧形比例 | ARC_RATIO_*             |
+| 90, 180   | paint()     | 角度     | START_ANGLE, SPAN_ANGLE |
 
 ### 4.2 复杂方法分析
 
@@ -600,35 +600,35 @@ void methodName(Type param);
 
 #### 🔴 Critical (5 个)
 
-| # | 问题 | 位置 | 影响 | 修复时间 |
-|---|------|------|------|---------|
-| 1 | 空指针未检查 | setLineColor() | 可能崩溃 | 30 分钟 |
-| 2 | editorLostFocus 无防御 | DiagramScene | 焦点丢失时崩溃 | 20 分钟 |
-| 3 | Arrow 生命周期不明 | DiagramItem | 内存泄漏 | 1 小时 |
-| 4 | 公开成员变量 | showLink | 封装违规 | 2 小时 |
-| 5 | DeleteCommand 悬垂指针 | 撤销栈 | 撤销时崩溃 | 1.5 小时 |
+| # | 问题                   | 位置           | 影响           | 修复时间 |
+| - | ---------------------- | -------------- | -------------- | -------- |
+| 1 | 空指针未检查           | setLineColor() | 可能崩溃       | 30 分钟  |
+| 2 | editorLostFocus 无防御 | DiagramScene   | 焦点丢失时崩溃 | 20 分钟  |
+| 3 | Arrow 生命周期不明     | DiagramItem    | 内存泄漏       | 1 小时   |
+| 4 | 公开成员变量           | showLink       | 封装违规       | 2 小时   |
+| 5 | DeleteCommand 悬垂指针 | 撤销栈         | 撤销时崩溃     | 1.5 小时 |
 
 #### 🟠 Major (7 个)
 
-| # | 问题 | 位置 | 建议 |
-|---|------|------|------|
-| 6 | MainWindow 过大 (1500 行) | mainwindow.cpp | 分离为 5 个子模块 |
-| 7 | paint() 方法复杂 (150+ 行) | DiagramItem | 使用多态替代 switch |
-| 8 | 硬编码常量值 | DiagramItem::paint() | 提取为 const 变量 |
-| 9 | 命名前缀不一致 | DiagramItem | 统一使用 m_ 前缀 |
-| 10 | 文档覆盖率低 (45%) | 所有头文件 | 添加 Doxygen 注释 |
-| 11 | 缺乏用户手册 | 项目级 | 创建使用指南 |
-| 12 | 代码行长超限 | 多个文件 | 重构超长行 |
+| #  | 问题                       | 位置                 | 建议                |
+| -- | -------------------------- | -------------------- | ------------------- |
+| 6  | MainWindow 过大 (1500 行)  | mainwindow.cpp       | 分离为 5 个子模块   |
+| 7  | paint() 方法复杂 (150+ 行) | DiagramItem          | 使用多态替代 switch |
+| 8  | 硬编码常量值               | DiagramItem::paint() | 提取为 const 变量   |
+| 9  | 命名前缀不一致             | DiagramItem          | 统一使用 m_ 前缀    |
+| 10 | 文档覆盖率低 (45%)         | 所有头文件           | 添加 Doxygen 注释   |
+| 11 | 缺乏用户手册               | 项目级               | 创建使用指南        |
+| 12 | 代码行长超限               | 多个文件             | 重构超长行          |
 
 #### 🟡 Minor (5 个)
 
-| # | 问题 | 位置 | 建议 |
-|---|------|------|------|
-| 13 | 缺乏常见问题文档 | 项目级 | 创建 FAQ |
-| 14 | 无版本历史记录 | 项目级 | 创建 CHANGELOG |
-| 15 | 错误处理不完整 | MainWindow | 添加 try-catch |
-| 16 | 性能调优空间 | 撤销栈 | 考虑操作合并 |
-| 17 | 测试文档不完整 | 测试目录 | 补充测试用例 |
+| #  | 问题             | 位置       | 建议           |
+| -- | ---------------- | ---------- | -------------- |
+| 13 | 缺乏常见问题文档 | 项目级     | 创建 FAQ       |
+| 14 | 无版本历史记录   | 项目级     | 创建 CHANGELOG |
+| 15 | 错误处理不完整   | MainWindow | 添加 try-catch |
+| 16 | 性能调优空间     | 撤销栈     | 考虑操作合并   |
+| 17 | 测试文档不完整   | 测试目录   | 补充测试用例   |
 
 ---
 
@@ -667,11 +667,11 @@ void methodName(Type param);
     - setLineColor() 
     - editorLostFocus()
     - itemInserted()
-    
+  
 [ ] 2. 修复 Arrow 和 DiagramPath 生命周期
     - 明确 parent 关系
     - 或使用 QSharedPointer
-    
+  
 [ ] 3. 提取硬编码常量
     - BorderWidth, DefaultSize 等
     - 创建 constants.h
@@ -684,10 +684,10 @@ void methodName(Type param);
 ```
 [ ] 4. 重构 MainWindow
     - 分离 UI 初始化、菜单、信号连接
-    
+  
 [ ] 5. 优化 DiagramItem::paint()
     - 使用多态或策略模式
-    
+  
 [ ] 6. 添加文档
     - Doxygen 注释 (目标 70%+)
     - 用户手册
@@ -702,7 +702,7 @@ void methodName(Type param);
     - API 参考
     - 开发者指南
     - 视频教程
-    
+  
 [ ] 8. 代码审查
     - 完整的错误处理
     - 性能优化
@@ -794,7 +794,6 @@ void setRotationAngle(qreal angle);
   • 架构设计清晰（分层良好）
   • 功能完整（20 种图形）
   • 命名规范（大部分遵循）
-  • 单元测试完整（19 个）
 
 ⚠️ 需改进:
   • 防御性编程不足（空指针检查）
@@ -807,7 +806,6 @@ void setRotationAngle(qreal angle);
 🟡 一般问题:     5 个
 
 整体评分: 67/100 分 (及格，可使用)
-改进后:  ~85/100 分 (良好，可发布)
 ```
 
 ### 建议
@@ -820,4 +818,3 @@ void setRotationAngle(qreal angle);
 
 本报告由 QA 工程师生成于 2025-12-08
 静态测试执行完成，发现 17 个需要关注的问题。
-
